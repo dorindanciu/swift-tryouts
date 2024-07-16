@@ -1,0 +1,11 @@
+# Ignore Finder metadata
+.DS_Store
+
+# Ignore Visual Studio Code configurations
+.vscode
+
+# Ignore build artifacts directory
+.build
+
+# Ignore SwiftPM state
+.swiftpm
