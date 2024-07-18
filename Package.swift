@@ -5,7 +5,28 @@ import PackageDescription
 
 let package = Package(
     name: "swift-tryouts",
-    platforms: [.macOS(.v15), .iOS(.v18), .tvOS(.v18), .watchOS(.v11), .macCatalyst(.v18)]
+    platforms: [.macOS(.v15), .iOS(.v18), .tvOS(.v18), .watchOS(.v11), .macCatalyst(.v18)],
+    products: [
+        .library(name: "TestingSupport", targets: ["TestingSupport"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
+    ],
+    targets: [
+        // TestingSupport module
+        .tryoutTarget(
+            name: "TestingSupport",
+            dependencies: [
+                .product(name: "Numerics", package: "swift-numerics")
+            ]
+        ),
+        .tryoutTestTarget(
+            name: "TestingSupportTests",
+            dependencies: [
+                .target(name: "TestingSupport")
+            ]
+        ),
+    ]
 )
 
 extension PackageDescription.Target {
