@@ -7,8 +7,12 @@ let package = Package(
     name: "swift-tryouts",
     platforms: [.macOS(.v15), .iOS(.v18), .tvOS(.v18), .watchOS(.v11), .macCatalyst(.v18)],
     products: [
+        // Support
         .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
         .library(name: "TestingSupport", targets: ["TestingSupport"]),
+
+        // Tryouts
+        .library(name: "SwiftUITryouts", targets: ["SwiftUITryouts"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
@@ -45,6 +49,14 @@ let package = Package(
                 .target(name: "SwiftUISupport"),
             ]
         ),
+
+        .tryoutTarget(
+            name: "SwiftUITryouts",
+            dependencies: [
+                .target(name: "SwiftUISupport"),
+                .target(name: "SwiftUITryoutsSupport"),
+            ]
+        )
     ]
 )
 
