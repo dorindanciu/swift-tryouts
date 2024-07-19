@@ -14,7 +14,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
     ],
     targets: [
-        // SwiftUISupport module
+        // SwiftUISupport
         .tryoutTarget(name: "SwiftUISupport"),
         .tryoutTestTarget(
             name: "SwiftUISupportTests",
@@ -24,7 +24,7 @@ let package = Package(
             ]
         ),
 
-        // TestingSupport module
+        // TestingSupport
         .tryoutTarget(
             name: "TestingSupport",
             dependencies: [
@@ -35,6 +35,14 @@ let package = Package(
             name: "TestingSupportTests",
             dependencies: [
                 .target(name: "TestingSupport")
+            ]
+        ),
+
+        // SwiftUITryoutsSupport
+        .tryoutTarget(
+            name: "SwiftUITryoutsSupport",
+            dependencies: [
+                .target(name: "SwiftUISupport"),
             ]
         ),
     ]
