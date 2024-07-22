@@ -328,6 +328,22 @@ extension CGRectTests {
             return [(source, angle, result)]
         }()
 
+        result += {
+            let angle: CGFloat = .pi / 4
+            let source = CGRect(x: 0.0, y: 0.0, width: 176.33333333333331, height: 176.33333333333331)
+            let result = (CGPoint.zero, CGPoint(x: 176.33333333333331, y: 176.33333333333331))
+
+            return [(source, angle, result)]
+        }()
+
+        result += {
+            let angle: CGFloat = -1 * .pi / 4
+            let source = CGRect(x: 0.0, y: 0.0, width: 212.5, height: 212.5)
+            let result = (CGPoint(x: 0.0, y: 212.5), CGPoint(x: 212.5, y: 0.0))
+
+            return [(source, angle, result)]
+        }()
+
         return result
     }
 

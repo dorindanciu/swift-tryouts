@@ -94,7 +94,7 @@ extension CGRect {
             let x = minX
             let y = m * (x - midX) + midY
 
-            if (minY...maxY).contains(y) {
+            if (minY...maxY).contains(y), !points.map(\.y).contains(y) {
                 points.append(CGPoint(x: x, y: y))
             }
         }
@@ -108,7 +108,7 @@ extension CGRect {
             let x = maxX
             let y = m * (x - midX) + midY
 
-            if (minY...maxY).contains(y) {
+            if (minY...maxY).contains(y), !points.map(\.y).contains(y) {
                 points.append(CGPoint(x: x, y: y))
             }
         }
@@ -122,7 +122,7 @@ extension CGRect {
             let y = minY
             let x = (y - midY) / m + midX
 
-            if (minX...maxX).contains(x) {
+            if (minX...maxX).contains(x), !points.map(\.x).contains(x) {
                 points.append(CGPoint(x: x, y: y))
             }
         }
@@ -136,7 +136,7 @@ extension CGRect {
             let y = maxY
             let x = (y - midY) / m + midX
 
-            if (minX...maxX).contains(x) {
+            if (minX...maxX).contains(x), !points.map(\.x).contains(x) {
                 points.append(CGPoint(x: x, y: y))
             }
         }
