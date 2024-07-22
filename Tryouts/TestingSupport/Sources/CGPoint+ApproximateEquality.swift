@@ -23,11 +23,11 @@ extension CGPoint {
     /// - SeeAlso: `isApproximatelyEqual(to:tolerance:)`
     @inlinable public func isApproximatelyEqual(
         to other: CGPoint,
-        tolerance: CGFloat = .ulpOfOne.squareRoot()
+        tolerance: CGFloat = .zero
     ) -> Bool {
         guard
-            x.isApproximatelyEqual(to: other.x, relativeTolerance: tolerance),
-            y.isApproximatelyEqual(to: other.y, relativeTolerance: tolerance)
+            x.isApproximatelyEqual(to: other.x, absoluteTolerance: tolerance),
+            y.isApproximatelyEqual(to: other.y, absoluteTolerance: tolerance)
         else {
             return false
         }
@@ -47,7 +47,7 @@ extension CGPoint {
     /// - SeeAlso: `isApproximatelyEqual(to:tolerance:)`
     @inlinable public func isApproximatelyEqual(
         to value: CGFloat,
-        tolerance: CGFloat = .ulpOfOne.squareRoot()
+        tolerance: CGFloat = .zero
     ) -> Bool {
         let candidate = CGPoint(x: value, y: value)
         return isApproximatelyEqual(to: candidate, tolerance: tolerance)
