@@ -10,7 +10,7 @@ import SwiftUI
 internal import SwiftUITryoutsSupport
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-@frozen public struct CustomOffsetEffect: @preconcurrency GeometryEffect, Equatable {
+@frozen public struct CustomOffsetEffect: GeometryEffect, Equatable {
 
     public var animatableData: CGSize.AnimatableData
 
@@ -18,12 +18,12 @@ internal import SwiftUITryoutsSupport
         self.animatableData = .init(offset.width, offset.height)
     }
 
-    public var offset: CGSize {
+    nonisolated public var offset: CGSize {
         get { CGSize(width: animatableData.first, height: animatableData.second) }
         set { animatableData = .init(newValue.width, newValue.height) }
     }
 
-    public func effectValue(size: CGSize) -> ProjectionTransform {
+    nonisolated public func effectValue(size: CGSize) -> ProjectionTransform {
         let matrix = CGAffineTransform(translationX: offset.width, y: offset.height)
         return ProjectionTransform(matrix)
     }
