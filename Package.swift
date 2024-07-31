@@ -14,6 +14,7 @@ let package = Package(
 
         // Tryouts
         .library(name: "SwiftUIOffsetEffect", targets: ["SwiftUIOffsetEffect"]),
+        .library(name: "SwiftUITransformEffect", targets: ["SwiftUITransformEffect"]),
         .library(name: "SwiftUICartesianSystem", targets: ["SwiftUICartesianSystem"]),
     ],
     dependencies: [
@@ -54,6 +55,14 @@ let package = Package(
             name: "SwiftUIOffsetEffect",
             dependencies: [
                 .target(name: "SwiftUISupport"),
+                .target(name: "PreviewSupport")
+            ]
+        ),
+
+        // SwiftUITransformEffect
+        .tryoutTarget(
+            name: "SwiftUITransformEffect",
+            dependencies: [
                 .target(name: "PreviewSupport")
             ]
         ),
