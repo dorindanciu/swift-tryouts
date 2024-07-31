@@ -6,25 +6,34 @@
 // This sample code is a reimplementation of the _OffsetEffect provided by SwiftUI.
 //
 
+internal import PreviewSupport
 import SwiftUI
-internal import SwiftUITryoutsSupport
+import SwiftUISupport
 
 @available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-@frozen public struct CustomOffsetEffect: GeometryEffect, Equatable {
+@frozen public struct CustomOffsetEffect: GeometryEffect, Equatable, Sendable {
 
-    public var animatableData: CGSize.AnimatableData
+    public var offset: CGSize
 
     @inlinable public init(offset: CGSize) {
-        self.animatableData = .init(offset.width, offset.height)
+        self.offset = offset
     }
 
-    nonisolated public var offset: CGSize {
-        get { CGSize(width: animatableData.first, height: animatableData.second) }
-        set { animatableData = .init(newValue.width, newValue.height) }
+    nonisolated public var animatableData: CGSize.AnimatableData {
+        get { offset.animatableData }
+        set { offset.animatableData = newValue }
     }
 
     nonisolated public func effectValue(size: CGSize) -> ProjectionTransform {
-        let matrix = CGAffineTransform(translationX: offset.width, y: offset.height)
+
+        // Start from the identity matrix.
+        var matrix = CGAffineTransformIdentity
+
+        // Apply translation transform.
+        if !offset.isNaN {
+            matrix = CGAffineTransformTranslate(matrix, offset.width, offset.height)
+        }
+
         return ProjectionTransform(matrix)
     }
 }
@@ -75,7 +84,7 @@ extension View {
 
 // MARK: - Xcode Previews
 
-#Preview("CustomOffsetEffect Editor") {
+#Preview("OffsetEffect Editor") {
 
     @Previewable @State
     var offset: CGSize = .zero
@@ -153,5 +162,6 @@ extension View {
             #endif
         }
         .labeledContentStyle(.inspector)
+        .padding()
     }
 }

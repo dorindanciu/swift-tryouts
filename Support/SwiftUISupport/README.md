@@ -1,4 +1,4 @@
-# SwiftUI Support module
+# SwiftUISupport
 
 ## Introduction
 

@@ -8,55 +8,55 @@ let package = Package(
     platforms: [.macOS(.v15), .iOS(.v18), .tvOS(.v18), .watchOS(.v11), .macCatalyst(.v18)],
     products: [
         // Support
-        .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
         .library(name: "TestingSupport", targets: ["TestingSupport"]),
+        .library(name: "SwiftUISupport", targets: ["SwiftUISupport"]),
+        .library(name: "PreviewSupport", targets: ["PreviewSupport"]),
 
         // Tryouts
-        .library(name: "SwiftUITryouts", targets: ["SwiftUITryouts"]),
+        .library(name: "SwiftUIOffsetEffect", targets: ["SwiftUIOffsetEffect"]),
+        .library(name: "SwiftUICartesianSystem", targets: ["SwiftUICartesianSystem"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
     ],
     targets: [
-        // SwiftUISupport
-        .tryoutTarget(name: "SwiftUISupport"),
-        .tryoutTestTarget(
-            name: "SwiftUISupportTests",
-            dependencies: [
-                .target(name: "SwiftUISupport"),
-                .target(name: "TestingSupport"),
-            ]
-        ),
-
         // TestingSupport
+        .supportTarget(name: "TestingSupport", dependencies: [
+            .product(name: "Numerics", package: "swift-numerics")
+        ]),
+        .supportTestTarget(name: "TestingSupportTests", dependencies: [
+            .target(name: "TestingSupport")
+        ]),
+
+        // SwiftUISupport
+        .supportTarget(name: "SwiftUISupport", dependencies: []),
+        .supportTestTarget(name: "SwiftUISupportTests", dependencies: [
+            .target(name: "SwiftUISupport"),
+            .target(name: "TestingSupport")
+        ]),
+
+        // PreviewSupport
+        .supportTarget(name: "PreviewSupport", dependencies: [
+            .target(name: "SwiftUISupport")
+        ]),
+
+        // SwiftUICartesianSystem
         .tryoutTarget(
-            name: "TestingSupport",
+            name: "SwiftUICartesianSystem",
             dependencies: [
-                .product(name: "Numerics", package: "swift-numerics")
-            ]
-        ),
-        .tryoutTestTarget(
-            name: "TestingSupportTests",
-            dependencies: [
-                .target(name: "TestingSupport")
+                .target(name: "SwiftUISupport"),
+                .target(name: "PreviewSupport")
             ]
         ),
 
-        // SwiftUITryoutsSupport
+        // SwiftUIOffsetEffect
         .tryoutTarget(
-            name: "SwiftUITryoutsSupport",
+            name: "SwiftUIOffsetEffect",
             dependencies: [
                 .target(name: "SwiftUISupport"),
+                .target(name: "PreviewSupport")
             ]
         ),
-
-        .tryoutTarget(
-            name: "SwiftUITryouts",
-            dependencies: [
-                .target(name: "SwiftUISupport"),
-                .target(name: "SwiftUITryoutsSupport"),
-            ]
-        )
     ]
 )
 
@@ -66,8 +66,24 @@ extension PackageDescription.Target {
     /// - Parameters:
     ///   - name: The name of the target. It will be used to derive the custom path for the target.
     ///   - dependencies: The dependencies of the target. A dependency can be another target in the package or a product from a package dependency.
+    static func supportTarget(name: String, dependencies: [Target.Dependency] = []) -> Target {
+        .target(name: name, dependencies: dependencies, path: supportSourcesPath(for: name))
+    }
+
+    /// Creates a test target.
+    /// - Parameters:
+    ///   - name: The name of the target. It will be used to derive the custom path for the target.
+    ///   - dependencies: The dependencies of the target. A dependency can be another target in the package or a product from a package dependency.
+    static func supportTestTarget(name: String, dependencies: [Target.Dependency] = []) -> Target {
+        .testTarget(name: name, dependencies: dependencies, path: supportTestsPath(for: name))
+    }
+
+    /// Creates a regular target.
+    /// - Parameters:
+    ///   - name: The name of the target. It will be used to derive the custom path for the target.
+    ///   - dependencies: The dependencies of the target. A dependency can be another target in the package or a product from a package dependency.
     static func tryoutTarget(name: String, dependencies: [Target.Dependency] = []) -> Target {
-        .target(name: name, dependencies: dependencies, path: sourcesPath(for: name))
+        .target(name: name, dependencies: dependencies, path: tryoutSourcesPath(for: name))
     }
 
     /// Creates a test target.
@@ -75,26 +91,50 @@ extension PackageDescription.Target {
     ///   - name: The name of the target. It will be used to derive the custom path for the target.
     ///   - dependencies: The dependencies of the target. A dependency can be another target in the package or a product from a package dependency.
     static func tryoutTestTarget(name: String, dependencies: [Target.Dependency] = []) -> Target {
-        .testTarget(name: name, dependencies: dependencies, path: testsPath(for: name))
+        .testTarget(name: name, dependencies: dependencies, path: tryoutTestsPath(for: name))
     }
 
-    private static func sourcesPath(for name: String) -> String {
-        return "Tryouts/\(name)/Sources"
+    /// Returns the custom path to the target's tests folder.
+    /// - Parameter targetName: Value representing the name of the target.
+    private static func supportSourcesPath(for targetName: String) -> String {
+        return path(for: targetName, relativeTo: "Support").appending("/Sources")
     }
 
-    private static func testsPath(for name: String) -> String {
+    /// Returns the custom path to the target's sources folder.
+    /// - Parameter targetName: Value representing the name of the target.
+    private static func supportTestsPath(for targetName: String) -> String {
+        return path(for: targetName, relativeTo: "Support").appending("/Tests")
+    }
+
+    /// Returns the custom path to the target's tests folder.
+    /// - Parameter targetName: Value representing the name of the target.
+    private static func tryoutSourcesPath(for targetName: String) -> String {
+        return path(for: targetName, relativeTo: "Tryouts").appending("/Sources")
+    }
+
+    /// Returns the custom path to the target's sources folder.
+    /// - Parameter targetName: Value representing the name of the target.
+    private static func tryoutTestsPath(for targetName: String) -> String {
+        return path(for: targetName, relativeTo: "Tryouts").appending("/Tests")
+    }
+
+    /// Returns the custom path for a target in the form of [PackageRoot]/[TargetName].
+    /// - Parameters:
+    ///   - targetName: Value representing the name of the target.
+    ///   - packageRoot: Value representing the base of the path.
+    private static func path(for targetName: String, relativeTo packageRoot: String) -> String {
         // Compute the name of the hosting folder from the target name.
-        let name: String = {
-            switch try? /(.*)Tests$/.wholeMatch(in: name) {
+        let targetName: String = {
+            switch try? /(.*)Tests$/.wholeMatch(in: targetName) {
             case .none:
                 // Default to the provided name.
-                return name
+                return targetName
             case .some(let match):
                 // Return the extracted prefix.
                 return String(match.output.1)
             }
         }()
 
-        return "Tryouts/\(name)/Tests"
+        return "\(packageRoot)/\(targetName)"
     }
 }

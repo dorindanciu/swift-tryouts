@@ -3,95 +3,59 @@
 //
 // Abstract:
 //
-// This sample code serves as a playground to experiment GraphicsContext transforms.
+// This sample code serves as a playground to debug transforms in a 2D Cartesian System.
 //
 
+internal import PreviewSupport
 import SwiftUI
 internal import SwiftUISupport
 
-#Preview("GraphicsContext Transforms") {
+public struct CartesianSystem {
 
-    @Previewable @State
-    var angle: Angle = .degrees(0)
+    public let unitSize: CGSize
 
-    VStack {
-        Canvas { context, size in
-            // Define the cartesian coordinate system.
-            let unitSize = CGSize(width: 20, height: 20)
-            let boundingRect = CGRect(origin: .zero, size: size)
-            let system = CartesianSystem(unitSize: unitSize, boundingRect: boundingRect)
+    public let boundingRect: CGRect
 
-            // Draw the system's grid and axes.
-            context.draw(system, with: .color(.gray))
-
-            // Draw rotation transform debug clues for several entries.
-            for entry in system.debugRotationEntries {
-                context.debugRotation(
-                    angle.radians,
-                    for: entry.path,
-                    around: entry.rotationPoint,
-                    with: entry.shading
-                )
-            }
-        }
-
-        GroupBox("Inspector") {
-            LabeledContent("Rotation") {
-                Slider(value: $angle.degrees, in: 0...360, step: 1)
-            }
-        }
-        .labeledContentStyle(.inspector)
-        .padding()
-    }
-}
-
-fileprivate struct CartesianSystem {
-    let unitSize: CGSize
-    let boundingRect: CGRect
-
-    var center: CGPoint {
+    public var center: CGPoint {
         CGPoint(x: boundingRect.width / 2, y: boundingRect.height / 2)
     }
 
     /// Cursor that iterates over the entire system width, marking the x axis gridline intersections.
-    var horizontalCursor: Cursor {
+    public var horizontalCursor: Cursor {
         Cursor(trough: boundingRect.width, by: unitSize.width)
     }
 
     /// Cursor that iterates over the entire system height, marking the y axis gridline intersections.
-    var verticalCursor: Cursor {
+    public var verticalCursor: Cursor {
         Cursor(trough: boundingRect.height, by: unitSize.height)
     }
 
     /// Type designed to compute a sequence of marks, striding the given length in such a way that
     /// one mark will overlap with the middle of the length precisely.
-    struct Cursor: Sequence {
-        let length: CGFloat
-        let stride: CGFloat
+    public struct Cursor: Sequence {
+        internal let length: CGFloat
+        internal let stride: CGFloat
 
-        init(trough length: CGFloat, by stride: CGFloat) {
+        public init(trough length: CGFloat, by stride: CGFloat) {
             self.length = length
             self.stride = stride
         }
 
-        func makeIterator() -> some IteratorProtocol<CGFloat> {
+        public func makeIterator() -> some IteratorProtocol<CGFloat> {
             CursorIterator(self)
         }
 
-        private struct CursorIterator: IteratorProtocol {
+        internal struct CursorIterator: IteratorProtocol {
             private let cursor: Cursor
             private var offset: CGFloat
 
-            init(_ cursor: Cursor) {
+            internal init(_ cursor: Cursor) {
                 self.cursor = cursor
 
-                self.offset = (cursor.length / 2).remainder(dividingBy: cursor.stride)
-                if self.offset < 0 {
-                    self.offset += cursor.stride
-                }
+                self.offset = (cursor.length / 2).truncatingRemainder(dividingBy: cursor.stride)
             }
 
-            mutating func next() -> CGFloat? {
+            internal mutating func next() -> CGFloat? {
                 guard offset <= cursor.length else { return nil }
                 defer { offset += cursor.stride }
                 return offset
@@ -157,7 +121,7 @@ extension CartesianSystem {
 
 extension GraphicsContext {
 
-    fileprivate func draw(_ system: CartesianSystem, with shading: Shading = .color(.gray)) {
+    public func draw(_ system: CartesianSystem, with shading: Shading = .color(.gray)) {
         // Draw the grid lines in their own layer.
         drawLayer { layer in
 
@@ -198,7 +162,7 @@ extension GraphicsContext {
         copy.stroke(Path(lineSegment: (startPoint, endPoint)), with: shading)
     }
 
-    fileprivate func debugRotation(_ angle: CGFloat, for path: Path, around point: CGPoint, with shading: Shading) {
+    public func debugRotation(_ angle: CGFloat, around point: CGPoint, for path: Path, with shading: Shading) {
         drawLayer { layer in
             // Draw the anchor point.
             layer.stroke(Path(circleAt: point, radius: 2), with: shading)
@@ -233,5 +197,46 @@ extension GraphicsContext {
             layer.opacity = 1
             layer.stroke(path, with: shading)
         }
+    }
+}
+
+// MARK: - Xcode Previews
+
+#Preview("GraphicsContext Transforms") {
+
+    @Previewable @State
+    var angle: Angle = .degrees(0)
+
+    VStack {
+        Canvas { context, size in
+            // Define the cartesian coordinate system.
+            let unitSize = CGSize(width: 20, height: 20)
+            let boundingRect = CGRect(origin: .zero, size: size)
+            let system = CartesianSystem(unitSize: unitSize, boundingRect: boundingRect)
+
+            // Draw the system's grid and axes.
+            context.draw(system, with: .color(.gray))
+
+            // Draw rotation transform debug clues for several entries.
+            for entry in system.debugRotationEntries {
+                context.debugRotation(
+                    angle.radians,
+                    around: entry.rotationPoint,
+                    for: entry.path,
+                    with: entry.shading
+                )
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(.gray, lineWidth: 0.75))
+        .padding()
+
+        GroupBox("Inspector") {
+            LabeledContent("Rotation") {
+                Slider(value: $angle.degrees, in: 0...360, step: 1)
+            }
+        }
+        .labeledContentStyle(.inspector)
+        .padding()
     }
 }
