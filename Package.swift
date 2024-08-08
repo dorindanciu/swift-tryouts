@@ -16,6 +16,7 @@ let package = Package(
         .library(name: "SwiftUIOffsetEffect", targets: ["SwiftUIOffsetEffect"]),
         .library(name: "SwiftUITransformEffect", targets: ["SwiftUITransformEffect"]),
         .library(name: "SwiftUICartesianSystem", targets: ["SwiftUICartesianSystem"]),
+        .library(name: "SwiftUIStackedTextRenderer", targets: ["SwiftUIStackedTextRenderer"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
@@ -62,6 +63,14 @@ let package = Package(
         // SwiftUITransformEffect
         .tryoutTarget(
             name: "SwiftUITransformEffect",
+            dependencies: [
+                .target(name: "PreviewSupport")
+            ]
+        ),
+
+        // SwiftUIStackedTextRenderer
+        .tryoutTarget(
+            name: "SwiftUIStackedTextRenderer",
             dependencies: [
                 .target(name: "PreviewSupport")
             ]
