@@ -17,6 +17,7 @@ let package = Package(
         .library(name: "SwiftUITransformEffect", targets: ["SwiftUITransformEffect"]),
         .library(name: "SwiftUICartesianSystem", targets: ["SwiftUICartesianSystem"]),
         .library(name: "SwiftUIStackedTextRenderer", targets: ["SwiftUIStackedTextRenderer"]),
+        .library(name: "SwiftUICircularTextRenderer", targets: ["SwiftUICircularTextRenderer"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.0")
@@ -75,6 +76,15 @@ let package = Package(
                 .target(name: "PreviewSupport")
             ]
         ),
+
+        // SwiftUICircularTextRenderer
+        .tryoutTarget(
+            name: "SwiftUICircularTextRenderer",
+            dependencies: [
+                .target(name: "PreviewSupport")
+            ]
+        ),
+
     ]
 )
 
